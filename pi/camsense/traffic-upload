@@ -1,0 +1,37 @@
+#!/bin/sh
+#
+# usage % trafic-upload
+#
+# cmdname="`echo $0 | rev | cut -d/ -f1 | rev`"
+homedir="`echo $0 | rev | cut -d/ -f2- | rev`"
+cd $homedir
+
+account="`grep "^account:" server.info | cut -d: -f2`"
+pass="`grep "^password:" server.info | cut -d: -f2`"
+basedir="`grep "^basedir:" server.info | cut -d: -f2`"
+
+cpuid="`grep Serial /proc/cpuinfo|cut -d: -f2| sed -e 's/ //g'`"
+jpgdir="$basedir/$cpuid"
+pngdir="traffics/$cpuid"
+
+cd $homedir/traffics
+
+#
+# upload *.png files
+#
+for pngname in `ls -t *.png | head -15`
+do
+	sshpass -p $pass ssh -o StrictHostKeyChecking=no $account "test ! -d $pngdir && mkdir $pngdir"
+	sshpass -p $pass scp -o StrictHostKeyChecking=no $pngname $account:$pngdir/ && rm $pngname
+done
+
+#
+# upload *.jpg files
+#
+for jpgname in `ls -t *.jpg | head -15`
+do
+	dt="`echo $jpgname|cut -dT -f1`"
+	sshpass -p $pass ssh -o StrictHostKeyChecking=no $account "test ! -d $jpgdir/$dt && mkdir $jpgdir/$dt"
+	sshpass -p $pass scp -o StrictHostKeyChecking=no $jpgname $account:$jpgdir/$dt/ && rm $jpgname
+done
+

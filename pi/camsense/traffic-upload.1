@@ -1,0 +1,49 @@
+#!/bin/sh
+#
+# usage % trafic-upkoad.sh [ traffics ]
+#
+rhost=www.casa-amigo.jp
+username=mailgate
+pass=2amigo2
+
+cpuid="`grep Serial /proc/cpuinfo|cut -d: -f2| sed -e 's/ //g'`"
+
+camera="$1"
+if [ "$camera" = "" ]; then
+	camera="traffics"
+fi
+
+jpgdir="/var/www/cgi-bin/camsense/raw/$cpuid"
+
+# export rhost
+# export pass
+# export username
+# export camera
+# export jpgdir
+
+cd /home/pi/camsense/traffics
+
+upload_jpg(){
+if [ "$1" != "" ]; then		# $1: jpgname
+	dt="`echo $1|cut -dT -f1`"
+	sshpass -p $pass ssh $rhost -o StrictHostKeyChecking=no -l $username ./traffic_pathcheck.sh $jpgdir/$dt
+	sshpass -p $pass scp -o StrictHostKeyChecking=no $jpgname $username@$rhost:$jpgdir/$dt/$1
+	rm $1
+fi
+}
+
+
+for pngname in `ls -t *.png | head -15`
+do
+	sshpass -p $pass scp -o StrictHostKeyChecking=no $pngname $username@$rhost:$camera/$pngname
+	rm $pngname
+done
+
+for jpgname in `ls -t *.jpg | head -15`
+do
+	dt="`echo $jpgname|cut -dT -f1`"
+	sshpass -p $pass ssh $rhost -o StrictHostKeyChecking=no -l $username ./traffic_pathcheck.sh $jpgdir/$dt
+	sshpass -p $pass scp -o StrictHostKeyChecking=no $jpgname $username@$rhost:$jpgdir/$dt/$jpgname
+	rm $jpgname
+done
+

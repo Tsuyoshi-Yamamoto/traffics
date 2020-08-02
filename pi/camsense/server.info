@@ -1,0 +1,5 @@
+#
+account:mailgate@www.casa-amigo.jp: server name or ip address
+password:2amigo2: password of the account
+basedir:/var/www/cgi-bin/camsense/raw: base directory at the server
+

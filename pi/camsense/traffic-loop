@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# pslog="`ps aux | grep camsense | grep -v grep`"
+# if [ "$pslog" != "" ]; then
+
+cd /home/pi/camsense
+
+while true
+do
+	echo `date +%Y-%m-%dT%H:%M:%S` ":Start camsense -mode 4" >> traffic-loop.log
+	./camsense -mode 4
+	echo `date +%Y-%m-%dT%H:%M:%S` ":Terminated." >> traffic-loop.log
+	sleep 10
+done
+
